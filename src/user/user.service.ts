@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../interfaces/user.interface';
 import {JwtService} from '@nestjs/jwt';
-import { Model } from 'mongoose';
-
 
 @Injectable()
 export class UserService {
@@ -11,7 +9,6 @@ export class UserService {
   async create(req, res): Promise<any> {
     try {
       const user: any = new this.userModel(req.body);
-      // const user = await UserModel.register(req.body, req.body.password);
       await user.setPassword(req.body.password);
       user.save((err, user) => {
         if (err) return res.status(400).json({ err });
@@ -22,18 +19,20 @@ export class UserService {
       return res.status(400).json({ message: 'Something went wrong' });
     }
   }
-
-  async login(req, res, next) {
+  
+  async login(userData, res, next) {
+    // console.log({userData})
+    const {email, password} = userData
     const { user } = await this.userModel.authenticate()(
-      req.body.email,
-      req.body.password,
+      email,
+      password,
     );
     if (!user)
       return res
         .status(400)
         .json({ message: "Email and password don't match" });
     
-    const {email, username, _id} = user;
+    const {username, _id} = user;
     // console.log(process.env)
     const token = this.jwt.sign({email, username, _id});
     return res.json({token, user});

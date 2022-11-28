@@ -4,10 +4,11 @@ import * as morgan from 'morgan';
 import helmet from 'helmet';
 import * as session from 'express-session';
 import * as passport from 'passport';
-// import UserModel from './schemas/user.schema';
+
 import { Strategy as LocalStrategy } from 'passport-local';
-// import { User } from './interfaces/user.interface';
 import UserModel1  from './schemas/user.schema';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+
 
 const PORT = process.env.PORT || 8001;
 
@@ -39,6 +40,15 @@ async function bootstrap() {
 
   passport.serializeUser(UserModel1.serializeUser());
   passport.deserializeUser(UserModel1.deserializeUser());
+
+  const config = new DocumentBuilder()
+    .setTitle('Cats example')
+    .setDescription('The cats API description')
+    .setVersion('1.0')
+    .addTag('cats')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
   app.listen(PORT, () => {
     console.log(`Server is on port ${PORT}`);

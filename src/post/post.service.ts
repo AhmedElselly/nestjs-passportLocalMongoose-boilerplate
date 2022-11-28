@@ -9,16 +9,20 @@ export class PostService {
 
   async create(req, res): Promise<any> {
     const post = new this.post(req.body);
-		post.author = req.body.userId;
-		post.save((err, post) => {
-			if(err) return res.status(400).json({err});
-			return res.json(post);
-		})
+    post.author = req.body.userId;
+    post.save((err, post) => {
+      if (err) return res.status(400).json({ err });
+      return res.json(post);
+    });
   }
 
+  async index(req, res): Promise<any> {
+    const users = await this.post.find().populate('author');
+    return res.json(users);
+  }
 
-	async index(req, res) {
-		const users = await this.post.find().populate('author');
-		return res.json(users);
-	}
+  async getPost(postId, req, res): Promise<any> {
+	const post = await this.post.findById(postId).populate('author');
+	return res.json(post);	
+  }
 }

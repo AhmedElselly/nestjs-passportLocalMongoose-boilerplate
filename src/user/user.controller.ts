@@ -1,5 +1,8 @@
-import { Controller, Get, Next, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Next, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBody } from '@nestjs/swagger';
 import { NextFunction, Request, Response } from 'express';
+import { LoginUserDto } from 'src/dtos/User.dto';
 import { UserService } from './user.service';
 
 @Controller('users')
@@ -11,13 +14,13 @@ export class UserController {
     }
 
     @Post('login')
-    async login(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
-        return this.userService.login(req, res, next);
+    @ApiBody({type: LoginUserDto})
+    async login(@Body() userDto: LoginUserDto, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        return this.userService.login(userDto, res, next);
     }
 
     @Get()
     async index(@Req() req: Request, @Res() res: Response): Promise<any> {
-        // return res.json({message: 'user controller is working'})
         return this.userService.findAll(res);
     }
 
@@ -25,5 +28,10 @@ export class UserController {
     async getUser(@Req() req: Request, @Res() res: Response): Promise<any> {
         const user = await this.userService.getUser(req, res);
         return user;
+    }
+
+    @Get('secret')
+    async getSecret(@Req() req: Request, @Res() res: Response): Promise<any> {
+        return res.json({message:'success'});
     }
 }
